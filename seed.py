@@ -2,8 +2,8 @@
 
 from sqlalchemy import func
 from model import User
-# from model import Rating
-# from model import Movie
+from model import Rating
+from model import Movie
 
 from model import connect_to_db, db
 from server import app
@@ -36,7 +36,12 @@ def load_users():
 
 def load_movies():
     """Load movies from u.item into database."""
+    print("Movies")
 
+    Movie.query.delete()
+
+    for row in op("seed_data/u.item"):
+        row = row.rstrip()
 
 def load_ratings():
     """Load ratings from u.data into database."""

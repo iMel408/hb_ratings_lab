@@ -18,14 +18,42 @@ class User(db.Model):
     __tablename__ = "users"
 
     user_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    email = db.Column(db.String(64), nullable=True)
-    password = db.Column(db.String(64), nullable=True)
+    email = db.Column(db.String(64), nullable=False)
+    password = db.Column(db.String(64), nullable=False)
     age = db.Column(db.Integer, nullable=True)
     zipcode = db.Column(db.String(15), nullable=True)
 
-
+    def __repr__(self):
+        """Show info about user"""
+        return f"<User user_id={self.user_id} email={self.email}>"
 # Put your Movie and Rating model classes here.
 
+
+class Movie(db.Model):
+
+    __tablename__="movies"
+
+    movie_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    title = db.Column(db.String(1000), nullable=False)
+    released_at = db.Column(db.DateTime, nullable=False)
+    imdb_url = db.Column(db.String(1000), nullable=False)
+
+    def __repr__(self):
+        """Show info about movie"""
+        return f"<Movie movie_id={self.movie_id} title={self.title}>"
+
+class Rating(db.Model):
+
+    __tablename__ = 'ratings'
+
+    rating_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    movie_id = db.Column(db.Integer, nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
+    score = db.Column(db.Integer, nullable=False)
+
+    def __repr__(self):
+        """Show info about rating"""
+        return f"<Rating rating_id={self.rating_id} movie_id={self.movie_id} user_id={self.user_id} score={self.score}>"
 
 ##############################################################################
 # Helper functions
