@@ -23,8 +23,13 @@ class User(db.Model):
     age = db.Column(db.Integer, nullable=True)
     zipcode = db.Column(db.String(15), nullable=True)
 
+    ratings = db.relationship('Rating')
+    movies = db.relatioship('Movie',
+        secondary = 'ratings',
+        backref = 'users')
+
     def __repr__(self):
-        """Show info about user"""
+        """Show info about usesr"""
         return f"<User user_id={self.user_id} email={self.email}>"
 # Put your Movie and Rating model classes here.
 
@@ -36,7 +41,8 @@ class Movie(db.Model):
     movie_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     title = db.Column(db.String(1000), nullable=False)
     released_at = db.Column(db.DateTime, nullable=False)
-    imdb_url = db.Column(db.String(1000), nullable=False)
+    video_released_date = db.Column(db.DateTime, nullable=True)
+    imdb_url = db.Column(db.String(1000), nullable=True)
 
     def __repr__(self):
         """Show info about movie"""
@@ -47,13 +53,53 @@ class Rating(db.Model):
     __tablename__ = 'ratings'
 
     rating_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    movie_id = db.Column(db.Integer, nullable=False)
-    user_id = db.Column(db.Integer, nullable=False)
+    movie_id = db.Column(db.Integer, nullable=False, db.ForeignKey('movies.movie_id'))
+    user_id = db.Column(db.Integer, nullable=False, db.ForeignKey('users.user_id'))
     score = db.Column(db.Integer, nullable=False)
+
+    movie = db.relationship('Movie')
+    user = db.relationship('User',
+        backref = 'ratings')
 
     def __repr__(self):
         """Show info about rating"""
         return f"<Rating rating_id={self.rating_id} movie_id={self.movie_id} user_id={self.user_id} score={self.score}>"
+
+
+class Genre(db.Model):
+
+    __tablename__ = 'genres'
+
+    genre_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    genre_name = db.Column(db.String(20), nullable=False)
+    movies = db.relationship('Movie',
+        secondary = 'movie_genres',
+        backref = 'genres')
+
+    def __repr__(self):
+        """Show info about Genre"""
+        return f"<Genre genre_id={self.genre_id} genre={self.genre_name}>"
+
+
+
+
+class MovieGenre(db.Model):
+
+    __tablename__ = 'movie_genres'
+
+    moviegenre_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    movie_id = db.Column(db.Integer, db.ForeignKey('movies.movie_id'), nullable=False)
+    genre_id = db.Column(db.Integer, db.ForeignKey('genres.genre_id'), nullable=False)
+
+    movie = db.relationship('Movie')
+    genre = db.relationship('Genre')
+
+    def __repr__(self):
+        """Show info about Movie-Genre"""
+        return f"<MovieGenre movie_id={self.movie_id} genre_id={self.genre_id}>"
+
+
+
 
 ##############################################################################
 # Helper functions
