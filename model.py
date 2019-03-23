@@ -18,15 +18,17 @@ class User(db.Model):
     __tablename__ = "users"
 
     user_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    email = db.Column(db.String(64), nullable=False)
-    password = db.Column(db.String(64), nullable=False)
+    email = db.Column(db.String(64), nullable=True)
+    password = db.Column(db.String(64), nullable=True)
     age = db.Column(db.Integer, nullable=True)
+    gender = db.Column(db.String(10), nullable=True)
+    occupation = db.Column(db.String(100), nullable=True)
     zipcode = db.Column(db.String(15), nullable=True)
 
     ratings = db.relationship('Rating')
-    movies = db.relatioship('Movie',
+    movies = db.relationship('Movie',
         secondary = 'ratings',
-        backref = 'users')
+        back_populates = 'users')
 
     def __repr__(self):
         """Show info about usesr"""
@@ -44,6 +46,14 @@ class Movie(db.Model):
     video_released_date = db.Column(db.DateTime, nullable=True)
     imdb_url = db.Column(db.String(1000), nullable=True)
 
+    ratings = db.relationship('Rating')
+    users = db.relationship('User',
+        secondary = 'ratings',
+        back_populates = 'movies')
+    genres = db.relationship('Genre',
+        secondary = 'movie_genres',
+        back_populates = 'movies')
+
     def __repr__(self):
         """Show info about movie"""
         return f"<Movie movie_id={self.movie_id} title={self.title}>"
@@ -53,13 +63,13 @@ class Rating(db.Model):
     __tablename__ = 'ratings'
 
     rating_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    movie_id = db.Column(db.Integer, nullable=False, db.ForeignKey('movies.movie_id'))
-    user_id = db.Column(db.Integer, nullable=False, db.ForeignKey('users.user_id'))
+    movie_id = db.Column(db.Integer, db.ForeignKey('movies.movie_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     score = db.Column(db.Integer, nullable=False)
+    timestamp = db.Column(db.TIMESTAMP(timezone=True), nullable=False)
 
-    movie = db.relationship('Movie')
-    user = db.relationship('User',
-        backref = 'ratings')
+    movie = db.relationship('Movie', back_populates='ratings')
+    user = db.relationship('User', back_populates='ratings')
 
     def __repr__(self):
         """Show info about rating"""
@@ -72,14 +82,14 @@ class Genre(db.Model):
 
     genre_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     genre_name = db.Column(db.String(20), nullable=False)
+
     movies = db.relationship('Movie',
         secondary = 'movie_genres',
-        backref = 'genres')
+        back_populates = 'genres')
 
     def __repr__(self):
         """Show info about Genre"""
         return f"<Genre genre_id={self.genre_id} genre={self.genre_name}>"
-
 
 
 
@@ -121,3 +131,14 @@ if __name__ == "__main__":
     from server import app
     connect_to_db(app)
     print("Connected to DB.")
+
+
+
+
+
+
+
+for line in item:
+    unk  = row[]
+    ....
+

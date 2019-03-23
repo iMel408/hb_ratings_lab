@@ -23,14 +23,32 @@ def load_users():
         row = row.rstrip()
         user_id, age, gender, occupation, zipcode = row.split("|")
 
-        user = User(user_id=user_id,
-                    age=age,
+        user = User(age=age,
+                    gender=gender,
+                    occupation=occupation,
                     zipcode=zipcode)
 
         # We need to add to the session or it won't ever be stored
         db.session.add(user)
 
     # Once we're done, we should commit our work
+    db.session.commit()
+
+def create_genres():
+    genres = ['unknown', 'action', 'adventure', 'animation', 'childrens', 'comedy', 'crime', 
+              'documentary', 'drama', 'fantasy', 'film_noir', 'horror', 'musical', 'mystery', 
+              'romance', 'sci_fi', 'thriller', 'war', 'western']
+
+    # genre_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    # genre_name = db.Column(db.String(20), nullable=False)
+    # Genre(db.Model):
+
+    Genre.query.delete()
+
+    for genre in genres:
+        genre_to_save = Genre(genre_name=genre)
+        db.session.add(genre_to_save)
+
     db.session.commit()
 
 
@@ -42,9 +60,60 @@ def load_movies():
 
     for row in op("seed_data/u.item"):
         row = row.rstrip()
+        movie_id, movie_title, release_date, video_release_date, imdb_url,\
+        unknown, action, adventure, animation,childrens, comedy, crime,\
+        documentary, drama, fantasy, film_noir, horror, musical, mystery,\
+        romance, sci_fi, thriller, war, western = row.split("|")
+
+        movie = Movie(movie_id=movie_id,
+                      movie_title=movie_title,
+                      release_date=release_date,
+                      video_release_date=video_release_date,
+                      imdb_url=imdb_url)
+
+    # moviegenre_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    # movie_id = db.Column(db.Integer, db.ForeignKey('movies.movie_id'), nullable=False)
+    # genre_id = db.Column(db.Integer, db.ForeignKey('genres.genre_id'), nullable=False)
+
+
+        # movie_genre = MovieGenre(movie_id=movie_id,
+        #                          unknown=unknown,
+        #                          action=action,
+        #                          adventure=adventure,
+        #                          animation=animation,
+        #                          childrens=childrens,
+        #                          comedy=comedy,
+        #                          crime=crime,
+        #                          documentary=documentary,
+        #                          drama=drama,
+        #                          fantasy=fantasy,
+        #                          film_noir=film_noir,
+        #                          horror=horror,
+        #                          musical=musical,
+        #                          mystery=mystery,
+        #                          romance=romance,
+        #                          sci_fi=sci_fi,
+        #                          thriller=thriller,
+        #                          war=war,
+        #                          western=western)
 
 def load_ratings():
     """Load ratings from u.data into database."""
+    Rating.query.delete()
+
+
+    for row in op("seed_data/u.data"):
+        row = row.rstrip()
+        user_id, movie_id, score, timestamp = row.split("\t")
+
+        rating = Rating(user_id=user_id,
+                        movie_id=movie_id,
+                        score=score,
+                        timestamp=timestamp)
+
+
+        db.session.add(rating)
+    db.session.commit()
 
 
 def set_val_user_id():
