@@ -1,5 +1,5 @@
 """Utility file to seed ratings database from MovieLens data in seed_data/"""
-
+from datetime import datetime
 from sqlalchemy import func
 from model import User
 from model import Rating
@@ -23,7 +23,8 @@ def load_users():
         row = row.rstrip()
         user_id, age, gender, occupation, zipcode = row.split("|")
 
-        user = User(age=age,
+        user = User(user_id=user_id,
+                    age=age,
                     gender=gender,
                     occupation=occupation,
                     zipcode=zipcode)
@@ -58,18 +59,34 @@ def load_movies():
 
     Movie.query.delete()
 
-    for row in op("seed_data/u.item"):
+    for row in open("seed_data/u.item"):
         row = row.rstrip()
         movie_id, movie_title, release_date, video_release_date, imdb_url,\
         unknown, action, adventure, animation,childrens, comedy, crime,\
         documentary, drama, fantasy, film_noir, horror, musical, mystery,\
         romance, sci_fi, thriller, war, western = row.split("|")
 
+        if release_date:
+            release_date = datetime.strptime(release_date, '%d-%b-%Y')
+        else:
+            release_date = None
+
+        if video_release_date:
+            video_release_date = datetime.strptime(video_release_date, '%d-%b-%Y')
+        else:
+            video_release_date = None
+
+        movie_title = movie_title.rpartition(' (')[0]
+
         movie = Movie(movie_id=movie_id,
                       movie_title=movie_title,
                       release_date=release_date,
                       video_release_date=video_release_date,
                       imdb_url=imdb_url)
+
+        db.session.add(movie)
+
+    db.session.commit()
 
     # moviegenre_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     # movie_id = db.Column(db.Integer, db.ForeignKey('movies.movie_id'), nullable=False)
@@ -99,12 +116,15 @@ def load_movies():
 
 def load_ratings():
     """Load ratings from u.data into database."""
+    print("Ratings")
+
     Rating.query.delete()
 
 
-    for row in op("seed_data/u.data"):
+    for row in open("seed_data/u.data"):
         row = row.rstrip()
         user_id, movie_id, score, timestamp = row.split("\t")
+        timestamp = datetime.fromtimestamp(int(timestamp))
 
         rating = Rating(user_id=user_id,
                         movie_id=movie_id,

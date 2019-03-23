@@ -41,9 +41,9 @@ class Movie(db.Model):
     __tablename__="movies"
 
     movie_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    title = db.Column(db.String(1000), nullable=False)
-    released_at = db.Column(db.DateTime, nullable=False)
-    video_released_date = db.Column(db.DateTime, nullable=True)
+    movie_title = db.Column(db.String(1000), nullable=False)
+    release_date = db.Column(db.DateTime, nullable=True)
+    video_release_date = db.Column(db.DateTime, nullable=True)
     imdb_url = db.Column(db.String(1000), nullable=True)
 
     ratings = db.relationship('Rating')
@@ -56,7 +56,7 @@ class Movie(db.Model):
 
     def __repr__(self):
         """Show info about movie"""
-        return f"<Movie movie_id={self.movie_id} title={self.title}>"
+        return f"<Movie movie_id={self.movie_id} title={self.movie_title}>"
 
 class Rating(db.Model):
 
@@ -131,14 +131,3 @@ if __name__ == "__main__":
     from server import app
     connect_to_db(app)
     print("Connected to DB.")
-
-
-
-
-
-
-
-for line in item:
-    unk  = row[]
-    ....
-
