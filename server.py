@@ -43,6 +43,23 @@ def show_user_profile(user_id):
     return render_template('user_profile.html', user=user)
 
 
+@app.route('/movies')
+def movie_list():
+    """Show list of movies."""
+
+    movies = Movie.query.all()
+    return render_template("movie_list.html", movies=movies)
+
+
+@app.route('/movies/<movie_id>')
+def show_movie_profile(movie_id):
+    """gets movie profile"""
+
+    movie = Movie.query.filter_by(movie_id=movie_id).first()
+
+    return render_template('movie_profile.html', movie=movie)
+
+
 @app.route('/registration_form')
 def registration_form():
 
@@ -88,11 +105,11 @@ def login():
 
     if user:
         print('user exists: {}'.format(email))
-        flash('user exists')
         if user.password == password:
             session['user_id'] = user.user_id
             print(session)
-            return redirect('/')
+            flash('Logged In')
+            return redirect('/users/{}'.format(user.user_id))
         else:
             print('wrong pw: {}'.format(email))
             flash('wrong pw')
