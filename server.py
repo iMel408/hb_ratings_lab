@@ -7,6 +7,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 
 from model import connect_to_db, db, User, Rating, Movie
 
+from sqlalchemy import func
 
 app = Flask(__name__)
 
@@ -23,6 +24,7 @@ app.jinja_env.undefined = StrictUndefined
 @app.route('/')
 def index():
     """Homepage."""
+
     return render_template('homepage.html')
 
 
@@ -39,7 +41,6 @@ def show_user_profile(user_id):
     """gets user profile"""
 
     user = User.query.filter_by(user_id=user_id).first()
-
     return render_template('user_profile.html', user=user)
 
 
@@ -47,7 +48,7 @@ def show_user_profile(user_id):
 def movie_list():
     """Show list of movies."""
 
-    movies = Movie.query.all()
+    movies = Movie.query.order_by(Movie.movie_title).all()
     return render_template("movie_list.html", movies=movies)
 
 
@@ -57,7 +58,18 @@ def show_movie_profile(movie_id):
 
     movie = Movie.query.filter_by(movie_id=movie_id).first()
 
-    return render_template('movie_profile.html', movie=movie)
+    user_id = session.get('user_id', '')
+
+    if user_id:
+        user_rating = Rating.query.filter_by(
+            movie_id=movie_id,user_id=user_id).first()
+    else:
+        user_rating = None
+
+    score_tups = db.session.query(Rating.score,func.count(Rating.rating_id)).filter_by(movie_id=movie_id).group_by("score").all()
+
+    return render_template('movie_profile.html', movie=movie,
+        user_rating=user_rating, score_tups=score_tups)
 
 
 @app.route('/registration_form')
@@ -125,6 +137,23 @@ def logout():
     flash('Logged out')
     print(session)
     return redirect('/')
+
+
+@app.route('/set_rating', methods=['POST'])
+def set_rating():
+    rating = request.form.get('rating')
+    user_id = int(session.get('user_id'))
+    movie_id = int(request.referrer.split('/')[-1])
+    user_rating = Rating.query.filter_by(user_id=user_id, movie_id=movie_id).first()
+    
+    if user_rating:
+        user_rating.score = rating
+    else:
+        user_rating = Rating(user_id=user_id, movie_id=movie_id, score=rating)
+        db.session.add(user_rating)
+    db.session.commit()
+
+    return redirect('/movies/{}'.format(movie_id))
 
 
 if __name__ == "__main__":

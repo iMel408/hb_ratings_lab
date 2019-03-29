@@ -3,15 +3,31 @@
 
   <h2>Movie Profile: {{ movie.movie_title }}</h2>
 
+  <h2>Your Rating: {% if user_rating %}{{ user_rating.score }}{% endif %}</h2>
+
+  <form action="/set_rating" method="POST">
+      <label>Set rating
+      <select name="rating">
+        <option value=1>1</option>
+        <option value=2>2</option>
+        <option value=3>3</option>
+        <option value=4>4</option>
+        <option value=5>5</option>
+      </select>
+      </label>
+      <input type="submit" name="submit"></input>
+  </form>
   <h3>Ratings:</h3>
-  {% for rating in movie.ratings %}
-  
-  <ul>
-    <li> <b>{{ rating.score }}</b> </li>
-  </ul>
+  <table border="1">
+  <tr>
+    <th>Score</th><th>Count</th>
+  </tr>
+  {% for score_tup in score_tups|sort(reverse=True)%}
+  <tr>
+    <td>{{ score_tup[0] }}</td><td> {{ score_tup[1] }} </td>
 
   {% endfor %}
-
+  </table>
 
 
 
