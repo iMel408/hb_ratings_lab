@@ -111,19 +111,25 @@ def login_form():
 @app.route('/login', methods=['POST'])
 def login():
 
-    email = request.form['email']
+    if request.form.get('id', ''):
+        user_id = request.form['id']
+        user = User.query.filter_by(user_id=user_id).first()
+    else:
+        email = request.form['email']
+        user = User.query.filter_by(email=email).first()
+
     password = request.form['password']
-    user = User.query.filter_by(email=email).first()
+
+    if not password:
+        password = None
 
     if user:
-        print('user exists: {}'.format(email))
         if user.password == password:
             session['user_id'] = user.user_id
             print(session)
             flash('Logged In')
             return redirect('/users/{}'.format(user.user_id))
         else:
-            print('wrong pw: {}'.format(email))
             flash('wrong pw')
             return redirect('/login_form')
     else:
@@ -151,6 +157,7 @@ def set_rating():
     else:
         user_rating = Rating(user_id=user_id, movie_id=movie_id, score=rating)
         db.session.add(user_rating)
+    
     db.session.commit()
 
     return redirect('/movies/{}'.format(movie_id))
